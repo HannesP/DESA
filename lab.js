@@ -1,3 +1,10 @@
+const path = require('path');
+const yaml = require('js-yaml');
+const fs = require('fs');
+
+const defPath = path.join(__dirname, 'definition.yaml');
+const definition = yaml.load(fs.readFileSync(defPath));
+
 function hasSameKeys(obj1, obj2) {
 	const keys1 = Object.keys(obj1).sort();
 	const keys2 = Object.keys(obj2).sort();
@@ -40,43 +47,25 @@ function selectorParamsFromCommand(command, commandDefs, selDef) {
 	return selectorParams;
 }
 
-function yadaYada(command, preconditions, commandDefs, preconditionDefs, selectorDefs) {
-	const res = [];
 
-	for (const precondition of preconditions) {
-		const selectorDef = selectorDefs[precondition];
-		if (selectorDef === undefined) {
-			throw `No selector named ${precondition}!`;
-		}
-
-		const selectorParams = selectorParamsFromCommand(command, commandDefs, selectorDef);
-		res.push(selectorParams);
+function dealWithMessage(message, definition) {
+	debugger;
+	const handler = definition.handlers.find(handler => handler.initiator === message.name);
+	if (handler === undefined) {
+		throw `No handler for message ${command.name}!`;
 	}
 
-	return res;
+	for (const preconditionName of handler.preconditions) {
+		const preconditonDef = definition.preconditions[preconditionName];
+		if (preconditonDef === undefined) {
+			throw `No precondition named ${precondition}!`;
+		}
+
+		const selectorDef = definition.selectors[preconditonDef.selector];
+		const selectorParams = selectorParamsFromCommand(command, definition.commands, selectorDef);
+	}
 }
-
-const path = require('path');
-const yaml = require('js-yaml');
-const fs = require('fs');
-
-const defPath = path.join(__dirname, 'definition.yaml');
-const definition = yaml.load(fs.readFileSync(defPath));
-
-const commandDefinitions = definition.commands;
-const selectorDefinitions = definition.selectors;
-const preconditionDefs = definition.preconditions;
 
 const command = {type: 'command', name: 'LikePost', params: {user: 'user1', post: 'post2'}};
 
-const handler = definition.handlers.find(handler => handler.initiator === command.name);
-
-if (handler === undefined) {
-	throw `No handler for message ${command.name}!`;
-}
-
-const preconditions = handler.preconditions;
-
-console.log(yadaYada(command, preconditions, commandDefinitions, preconditionDefs, selectorDefinitions));
-
-module.exports = definition
+dealWithMessage(command, definition);
