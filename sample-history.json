@@ -1,0 +1,6 @@
+[
+	{"name": "PostCreated",	"post": "post1", "user": "user1"},
+	{"name": "PostLiked",	"post": "post1", "user": "user2"},
+	{"name": "PostLiked",	"post": "post1", "user": "user1"},
+	{"name": "PostCreated", "post": "post2", "user": "user1"},
+]
