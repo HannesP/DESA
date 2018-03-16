@@ -1,0 +1,54 @@
+entities:
+- Post
+- Comment
+- Like
+
+commands:
+  CreatePost:
+    params:
+      post: {type: entity, name: Post}
+      user: {type: entity, name: User}
+      body: {type: string}
+  LikePost:
+    params:
+      post: {type: entity, name: Post}
+      user: {type: entity, name: User}
+
+events:
+  PostCreated:
+    params:
+      post: {type: entity, name: Post}
+      user: {type: entity, name: User}
+      body: {type: string}
+  PostLiked:
+    params:
+      post: {type: entity, name: Post}
+      user: {type: entity, name: User}
+
+preconditions:
+  PostExists:
+    selector: PostExists
+  PostNotLikedByUser:
+    selector: PostIsLikedByUser
+    negate: true
+
+handlers:
+- initiator: CreatePost
+  preconditions: [PostDoesNotExist]
+  result: PostCreated
+- initiator: LikePost
+  preconditions: [PostExists, UserLikesPost]
+  result: PostLiked
+ 
+selectors:
+  PostIsLikedByUser:
+    params:
+      post: {type: entity, name: Post}
+      user: {type: entity, name: User}
+  PostExists:
+    params:
+      post: {type: entity, name: Post}
+  PostNumberOfLikes:
+    params:
+      post: {type: entity, name: Post}
+      
