@@ -27,6 +27,6 @@ given the command and event definitions. In this simple example, full forwarding
 
 to
 
-	{PostExists | post: '1234'}
+	{PostDoesNotExist | post: '123'}
 	{UserCanSubmitPost | user: '321'}
 	{PostBodyIsValid | body: 'my post'}
