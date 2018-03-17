@@ -1,9 +1,4 @@
-const path = require('path');
-const yaml = require('js-yaml');
-const fs = require('fs');
-
-const defPath = path.join(__dirname, 'definition.yaml');
-const definition = yaml.load(fs.readFileSync(defPath));
+const definition = require('./load-definition');
 
 function hasSameKeys(obj1, obj2) {
 	const keys1 = Object.keys(obj1).sort();
@@ -82,7 +77,10 @@ function dealWithCommand(command, definition) {
 	const allPassed = outcomes.reduce((prev, curr) => prev && curr);
 
 	if (allPassed) {
-		
+		const resultName = handler.result;
+		const resultHandler = definition.messages[resultName];
+
+		// Auto-fill message
 	}
 }
 
