@@ -43,17 +43,19 @@ function selectorParamsFromCommand(command, commandDefs, selDef) {
 }
 
 
-function eventsForSelector(selectorDef, selectorParams, history) {
+function eventsForSelector(selectorDef, selectorParams, eventDefs, history) {
     return history.filter(message => {
         if (message.type === 'command') {
             return false;
         }
 
+        const eventDef = eventDefs[message.name];
+
         return true;
     });
 }
 
-function dealWithCommand(command, definition) {
+function dealWithCommand(command, definition, selectorReducers) {
     const handler = definition.handlers.find(handler => handler.initiator === command.name);
     if (handler === undefined) {
         throw `No handler for command ${command.name}!`;
@@ -72,7 +74,7 @@ function dealWithCommand(command, definition) {
         const selectorParams = selectorParamsFromCommand(command, definition.commands, selectorDef);
 
         const reducer = selectorReducers[selectorName](selectorParams);
-        const relevantHistory = eventsForSelector(selectorDef, selectorParams, history);
+        const relevantHistory = eventsForSelector(selectorDef, selectorParams, definition.events, history);
         const outcome = relevantHistory.reduce(reducer, undefined);
 
         const didPass = preconditonDef.negate ? !outcome : outcome;
@@ -91,44 +93,11 @@ function dealWithCommand(command, definition) {
 }
 
 
-const selectorReducers = {};
 
-selectorReducers.UserLikesPost = ({user, post}) => (isLiked = false, event) => {
-    if (user === event.params.user &&
-        post === event.params.post) {
-
-        if (event.name === 'PostLiked') {
-            return true;
-        } else if (event.name === 'PostUnliked') {
-            return false;
-        }
-    }
-    return isLiked;
-};
-
-selectorReducers.PostIsLiked = ({post}) => (isLiked = false, event) => {
-    if (post === event.params.post) {
-        if (event.name === 'PostLiked') {
-            return true;
-        } else if (event.name === 'PostUnliked') {
-            return false;
-        }
-    }
-    return isLiked;
-};
-
-selectorReducers.PostExists = ({post}) => (exists = false, event) => {
-    if (post === event.params.post) {
-        if (event.name === 'PostCreated') {
-            return true;
-        }
-    }
-    return exists;
-};
 
 const history = require('./sample-history').slice();
-
+const reducers = require('./reducers');
 
 const command = {type: 'command', name: 'LikePost', params: {user: 'user1', post: 'post2'}};
 
-dealWithCommand(command, definition);
+dealWithCommand(command, definition, reducers);
