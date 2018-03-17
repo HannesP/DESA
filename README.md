@@ -30,3 +30,5 @@ to
 	{PostDoesNotExist | post: '123'}
 	{UserCanSubmitPost | user: '321'}
 	{PostBodyIsValid | body: 'my post'}
+
+We could go by parameter name – that would've done the job in the above example. The downside is that it makes parameter names weirdly global. I think I'll go with this way and see where it breaks. This is an experiment after all.
