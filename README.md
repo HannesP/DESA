@@ -21,7 +21,7 @@ to
 
 	{PostSubmitted | post: '123', body: 'my post', user: '321'}
 
-given the command and event definitions. In this simple example, full forwarding of the params would suffice. However, we also want it for prerequisite selectors, with only a subset of the parameters, e.g. (compact notation)
+given the command and event definitions. In this simple example, full forwarding of the params would suffice. However, we also want it for prerequisite selectors, with only a subset of the parameters, e.g.
 
 	{SubmitPost | post: '123', body: 'my post', user: '321'}
 
