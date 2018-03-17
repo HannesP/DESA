@@ -44,7 +44,13 @@ function selectorParamsFromCommand(command, commandDefs, selDef) {
 
 
 function eventsForSelector(selectorDef, selectorParams, history) {
-    return history;
+    return history.filter(message => {
+        if (message.type === 'command') {
+            return false;
+        }
+
+        return true;
+    });
 }
 
 function dealWithCommand(command, definition) {
