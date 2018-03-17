@@ -48,11 +48,17 @@ function selectorParamsFromCommand(command, commandDefs, selDef) {
 }
 
 
+function eventsForSelector(selectorDef, selectorParams, history) {
+	return history;
+}
+
 function dealWithCommand(command, definition) {
 	const handler = definition.handlers.find(handler => handler.initiator === command.name);
 	if (handler === undefined) {
 		throw `No handler for command ${command.name}!`;
 	}
+
+	const passing = {};
 
 	for (const preconditionName of handler.preconditions) {
 		const preconditonDef = definition.preconditions[preconditionName];
@@ -65,12 +71,14 @@ function dealWithCommand(command, definition) {
 		const selectorParams = selectorParamsFromCommand(command, definition.commands, selectorDef);
 
 		const reducer = selectorReducers[selectorName](selectorParams);
-		let result = undefined;
-		
-		for (const event of history) {
-			result = reducer(result, event);
-		}
+		const relevantHistory = eventsForSelector(selectorDef, selectorParams, history);
+		const result = relevantHistory.reduce(reducer, undefined);
+
+		const actualResult = preconditonDef.negate ? !result : result;
+		passing[preconditionName] = actualResult;
 	}
+
+	console.log(JSON.stringify(passing));
 }
 
 
