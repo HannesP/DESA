@@ -48,11 +48,10 @@ function selectorParamsFromCommand(command, commandDefs, selDef) {
 }
 
 
-function dealWithMessage(message, definition) {
-	debugger;
-	const handler = definition.handlers.find(handler => handler.initiator === message.name);
+function dealWithCommand(command, definition) {
+	const handler = definition.handlers.find(handler => handler.initiator === command.name);
 	if (handler === undefined) {
-		throw `No handler for message ${command.name}!`;
+		throw `No handler for command ${command.name}!`;
 	}
 
 	for (const preconditionName of handler.preconditions) {
@@ -61,11 +60,49 @@ function dealWithMessage(message, definition) {
 			throw `No precondition named ${precondition}!`;
 		}
 
-		const selectorDef = definition.selectors[preconditonDef.selector];
+		const selectorName = preconditonDef.selector;
+		const selectorDef = definition.selectors[selectorName];
 		const selectorParams = selectorParamsFromCommand(command, definition.commands, selectorDef);
+
+		const reducer = selectorReducers[selectorName](selectorParams);
+		let result = undefined;
+		
+		for (const event of history) {
+			result = reducer(result, event);
+		}
 	}
 }
 
+
+const selectorReducers = {};
+
+selectorReducers.UserLikesPost = ({user, post}) => (isLiked = false, event) => {
+    if (event.name === 'PostLiked') {
+        if (user === event.params.user &&
+            post === event.params.post) {
+            return true;
+        }
+    } else if (event.name === 'PostUnliked') {
+        if (user === event.params.user &&
+            post === event.params.post) {
+            return false;
+        }
+    }
+    return isLiked;
+};
+
+selectorReducers.PostExists = ({post}) => (exists = false, event) => {
+    if (event.name === 'PostCreated') {
+        if (post === event.params.post) {
+            return true;
+        }
+    }
+    return exists;
+};
+
+const history = require('./sample-history').slice();
+
+
 const command = {type: 'command', name: 'LikePost', params: {user: 'user1', post: 'post2'}};
 
-dealWithMessage(command, definition);
+dealWithCommand(command, definition);
