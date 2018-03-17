@@ -99,6 +99,19 @@ selectorReducers.UserLikesPost = ({user, post}) => (isLiked = false, event) => {
     return isLiked;
 };
 
+selectorReducers.PostIsLiked = ({post}) => (isLiked = false, event) => {
+	if (event.name === 'PostLiked') {
+		if (post === event.params.post) {
+			return true;
+		}
+	} else if (event.name === 'PostUnliked') {
+		if (post === event.params.post) {
+			return false;
+		}
+	}
+	return isLiked;
+};
+
 selectorReducers.PostExists = ({post}) => (exists = false, event) => {
     if (event.name === 'PostCreated') {
         if (post === event.params.post) {
