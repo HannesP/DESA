@@ -72,40 +72,41 @@ function dealWithCommand(command, definition) {
 
 		const reducer = selectorReducers[selectorName](selectorParams);
 		const relevantHistory = eventsForSelector(selectorDef, selectorParams, history);
-		const result = relevantHistory.reduce(reducer, undefined);
+		const outcome = relevantHistory.reduce(reducer, undefined);
 
-		const actualResult = preconditonDef.negate ? !result : result;
-		passing[preconditionName] = actualResult;
+		const didPass = preconditonDef.negate ? !outcome : outcome;
+		passing[preconditionName] = didPass;
 	}
 
-	console.log(JSON.stringify(passing));
+	const outcomes = Object.keys(passing).map(key => passing[key]);
+	const allPassed = outcomes.reduce((prev, curr) => prev && curr);
+
+	if (allPassed) {
+		
+	}
 }
 
 
 const selectorReducers = {};
 
 selectorReducers.UserLikesPost = ({user, post}) => (isLiked = false, event) => {
-    if (event.name === 'PostLiked') {
-        if (user === event.params.user &&
-            post === event.params.post) {
-            return true;
-        }
-    } else if (event.name === 'PostUnliked') {
-        if (user === event.params.user &&
-            post === event.params.post) {
-            return false;
-        }
+    if (user === event.params.user &&
+		post === event.params.post) {
+
+    	if (event.name === 'PostLiked') {
+    	    return true;
+    	} else if (event.name === 'PostUnliked') {
+    	    return false;
+    	}
     }
     return isLiked;
 };
 
 selectorReducers.PostIsLiked = ({post}) => (isLiked = false, event) => {
-	if (event.name === 'PostLiked') {
-		if (post === event.params.post) {
+	if (post === event.params.post) {
+		if (event.name === 'PostLiked') {
 			return true;
-		}
-	} else if (event.name === 'PostUnliked') {
-		if (post === event.params.post) {
+		} else if (event.name === 'PostUnliked') {
 			return false;
 		}
 	}
@@ -113,8 +114,8 @@ selectorReducers.PostIsLiked = ({post}) => (isLiked = false, event) => {
 };
 
 selectorReducers.PostExists = ({post}) => (exists = false, event) => {
-    if (event.name === 'PostCreated') {
-        if (post === event.params.post) {
+    if (post === event.params.post) {
+    	if (event.name === 'PostCreated') {
             return true;
         }
     }
